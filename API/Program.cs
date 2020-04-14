@@ -25,6 +25,8 @@ namespace API
                     var context = services.GetRequiredService<StoreContext>();
                     // Create DB if it doesn't exists
                     await context.Database.MigrateAsync();
+                    // Seed data from static method
+                    await StoreContextSeed.SeedAsync(context, loggerFactory);
 
                 }
                 catch (Exception ex)
