@@ -7,6 +7,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Infrastructure;
 using Core.Interfaces;
+using AutoMapper;
+using API.Helpers;
 
 namespace API
 {
@@ -27,6 +29,7 @@ namespace API
             services.AddControllers();
             services.AddDbContext<StoreContext>(x => 
             x.UseSqlite(_configuration.GetConnectionString("DefaultConnection")));
+            services.AddAutoMapper(typeof(MappingProfiles));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
