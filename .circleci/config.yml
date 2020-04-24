@@ -23,9 +23,12 @@ jobs:
          name: "Install project dependencies"            
          command: dotnet.exe restore
          shell: powershell.exe
-      - save_cache:
-          paths:
-            - C:\Users\circleci\.nuget\packages
+      # TODO Cache implementation  
+      #- save_cache:
+      #    paths:
+      #      - C:\Users\circleci\.nuget\packages
+      #    key:
+      #      - dotnet-packages-v1-{{ checksum " EventApp.Backend/SimpleCalc.csproj" }}
       - run:
          name: "Run tests"
          command: dotnet test
