@@ -1,12 +1,32 @@
- version: 2.1
+version: 2.1
 
- orbs:
+orbs:
   win: circleci/windows@2.2.0
 
- jobs:
-   build:
-     executor: win/default     
-    
-     steps:
-       - checkout
-       - run: dotnet build
+jobs:
+  build:
+    executor:
+      name: win/default
+    steps:
+      # pull source code from repo
+      - checkout
+      # default shell is Powershell
+      - run:
+         name: "Go to Backend directory"             
+         command: cd .\EventApp.Backend\
+         shell: powershell.exe
+    #  - run:
+    #     command: echo hello && echo world
+    #     shell: bash.exe
+      - run: dotnet build
+      - run:
+         name: "Install project dependencies"            
+         command: dotnet.exe restore
+         shell: powershell.exe
+      - save_cache:
+          paths:
+            - C:\Users\circleci\.nuget\packages
+      - run:
+         name: "Run tests"
+         command: dotnet test
+         shell: powershell.exe
