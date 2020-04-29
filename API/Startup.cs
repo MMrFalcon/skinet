@@ -3,17 +3,11 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
-using Infrastructure;
-using Core.Interfaces;
 using AutoMapper;
 using API.Helpers;
 using API.Middleware;
-using Microsoft.AspNetCore.Mvc;
-using System.Linq;
-using API.Errors;
-using Microsoft.OpenApi.Models;
+using API.Extensions;
 
 namespace API
 {
@@ -29,38 +23,14 @@ namespace API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            
             services.AddControllers();
             services.AddDbContext<StoreContext>(x => 
             x.UseSqlite(_configuration.GetConnectionString("DefaultConnection")));
             services.AddAutoMapper(typeof(MappingProfiles));
 
-            //Display array of error messages, status code and customized error message
-            services.Configure<ApiBehaviorOptions>(options => 
-            {
-                options.InvalidModelStateResponseFactory = actionContext => 
-                {
-                    var errors = actionContext.ModelState
-                        .Where(e => e.Value.Errors.Count > 0)
-                        .SelectMany(x => x.Value.Errors)
-                        .Select(x => x.ErrorMessage).ToArray();
-
-                    var errorResponse = new ApiValidationErrorResponse
-                    {
-                        Errors = errors
-                    };
-
-                    return new BadRequestObjectResult(errorResponse);
-                };
-            });
-
-            services.AddSwaggerGen(options => {
-                options.SwaggerDoc("v1", new OpenApiInfo 
-                {
-                    Title = "SkiNet API",
-                    Version = "v1"
-                });
-            });
+            services.AddApplicationServices();
+            services.AddSwaggerDocumentation();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -80,10 +50,7 @@ namespace API
 
             app.UseSwagger();
 
-            app.UseSwaggerUI(c => 
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "SkiNet API v1");
-            });
+            app.UseSwaggerDocumentation();
 
             app.UseEndpoints(endpoints =>
             {
